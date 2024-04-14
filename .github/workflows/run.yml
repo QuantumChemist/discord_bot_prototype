@@ -25,4 +25,4 @@ jobs:
     - name: Run Python script with secret
       env:
         SORA_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: python bot.py
+      run: timeout 60s python bot.py
