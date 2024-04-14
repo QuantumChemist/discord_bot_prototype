@@ -64,7 +64,7 @@ async def hello(ctx):
         await ctx.send(f'Hello {ctx.author.mention}!')
 
 # Get the bot token from the environment variable
-SORA_TOKEN = os.environ.get('BOT_TOKEN')
+SORA_TOKEN = os.environ.get('SORA_TOKEN')
 
 # Use the bot token to run your bot
 bot.run(SORA_TOKEN)
