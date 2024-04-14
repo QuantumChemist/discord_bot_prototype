@@ -19,13 +19,13 @@ async def on_ready():
 @bot.event
 async def on_reaction_add(reaction, user):
     # Check if the reaction is a thumbs up emoji and the message is not from the bot itself
-    if str(reaction.emoji) == '👍' and user != bot.user:
+    if str(reaction.emoji) == ':Sora_heart:' and user != bot.user:
         # Fetch the message that received the reaction
         message = await reaction.message.channel.fetch_message(reaction.message.id)
         # Check if the message has exactly one reaction
-        if len(message.reactions) == 1:
+        if len(message.reactions) > 2:
             # Get the "pins" channel
-            pins_channel = discord.utils.get(message.guild.channels, name="pins")
+            pins_channel = discord.utils.get(message.guild.channels, name="server-pins")
             if pins_channel:
                 # Get the permalink of the message
                 message_link = message.jump_url
@@ -46,21 +46,25 @@ async def get_message_content(ctx, message_link: str):
         await ctx.send(f"Content of the message: {message.content}")
     except Exception as e:
         await ctx.send(f"Failed to retrieve message content: {e}")    
-              
+
+# Command: Chris
+@bot.command(name='chris')
+async def hello(ctx):
+    await ctx.send(f'Chris is greeting you, {ctx.author.mention}!')
 
 # Command: Hello
 @bot.command(name='hello')
 async def hello(ctx):
     # Send a greeting message
-    if ctx.author.name == "user_name":
+    if ctx.author.name == "joshstrife":
         # Send a custom response
-        await ctx.send("User specific message.")
+        await ctx.send("F# my earth, Josh Strife.")
     else:
         # Send a generic greeting message
         await ctx.send(f'Hello {ctx.author.mention}!')
 
 # Get the bot token from the environment variable
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
+SORA_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Use the bot token to run your bot
-bot.run(BOT_TOKEN)
+bot.run(SORA_TOKEN)
