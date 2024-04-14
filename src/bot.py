@@ -60,7 +60,7 @@ async def hello(ctx):
         await ctx.send(f'Hello {ctx.author.mention}!')
 
 # Get the bot token from the environment variable
-BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Use the bot token to run your bot
 bot.run(BOT_TOKEN)
