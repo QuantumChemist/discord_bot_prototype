@@ -1,6 +1,15 @@
 import os
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
+import aiocurl
+import asyncio
+import functools
+import typing
+#import bot_aux
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Intents definition
 intents = discord.Intents.default()
@@ -15,11 +24,6 @@ custom_emoji_names = ['Sora_heart', '❤️']
 
 # Threshold for the number of reactions
 reaction_threshold = 3
-
-# Event: Bot is ready
-@bot.event
-async def on_ready():
-    print(f'{bot.user.name} has connected to Discord!')
     
 # Event: Reaction is added
 @bot.event
@@ -67,9 +71,48 @@ async def hello(ctx):
     else:
         # Send a generic greeting message
         await ctx.send(f'Hello {ctx.author.mention}!')
+        
+# Event: Bot is ready
+@bot.event
+async def on_ready():
+    print(f'{bot.user.name} has connected to Discord!')
 
+@bot.listen()
+async def on_message(message):
+    print("Done!")
+            
+# Command to start the background task
+@bot.command(name='start')
+async def start_send_message(ctx):
+    await ctx.send("Chat mode started!")
+    while True:
+        try:
+            # Get the channel ID and message from the terminal
+            channel_id = int(input("Enter the channel ID where you want to send the message: "))
+            message = input("Enter the message to send to Discord (or type 'quit' to exit): ")
+            
+            if channel_id == 0 or message.lower() == 'quit':
+                await ctx.send("Chat mode stopped!")
+                break
+
+            # Get the channel object
+            channel = bot.get_channel(channel_id)
+
+            if channel:
+                await channel.send(message)
+            else:
+                print("Invalid channel ID. Please enter a valid channel ID.")
+        except ValueError:
+            print("Invalid channel ID. Please enter a valid channel ID.")
+
+@bot.command(name='logout')
+@commands.is_owner()
+async def logout_bot(ctx):
+    await ctx.send("Goodbye, minna-san~!")
+    await bot.close()
+    
 # Get the bot token from the environment variable
-SORA_TOKEN = os.environ.get('SORA_TOKEN')
+SORA_TOKEN = os.getenv('SORA_TOKEN')
 
 # Use the bot token to run your bot
 bot.run(SORA_TOKEN)
