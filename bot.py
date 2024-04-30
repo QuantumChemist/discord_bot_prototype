@@ -65,9 +65,9 @@ async def hello(ctx):
 @bot.command(name='hello')
 async def hello(ctx):
     # Send a greeting message
-    if ctx.author.name == "joshstrife":
+    if ctx.author.name == " ":
         # Send a custom response
-        await ctx.send("F# my earth, Josh Strife.")
+        await ctx.send("Hello.")
     else:
         # Send a generic greeting message
         await ctx.send(f'Hello {ctx.author.mention}!')
