@@ -130,6 +130,3 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Use the bot token to run your bot
 bot.run(BOT_TOKEN)
-
-# just to finish the GitHub wf sucessfully
-sys.exit(0)
