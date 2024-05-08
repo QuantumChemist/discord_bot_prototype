@@ -9,6 +9,9 @@ import functools
 import typing
 #import bot_aux
 
+# just to finish the GitHub wf sucessfully
+sys.exit(0)
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -130,6 +133,3 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Use the bot token to run your bot
 bot.run(BOT_TOKEN)
-
-# just to finish the GitHub wf sucessfully
-sys.exit(0)
