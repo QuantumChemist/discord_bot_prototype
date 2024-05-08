@@ -124,12 +124,12 @@ async def hello(ctx):
 # Get the bot token from the environment variable
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
-# Use the bot token to run your bot
-#bot.run(BOT_TOKEN)
-
 @bot.listen()
 async def on_message(message):
     print("Done!")
+
+# Use the bot token to run your bot, uncomment for local usage of the bot
+#bot.run(BOT_TOKEN)
 
 # Your bot's main function for running it a specific time
 async def main():
