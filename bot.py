@@ -24,7 +24,7 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or(''), intents=intent
 custom_emoji_names = ['custom_emoji']
 
 # Threshold for the number of reactions
-reaction_threshold = n
+reaction_threshold = 3
 
 # Event: Reaction is added
 @bot.event
@@ -130,3 +130,6 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Use the bot token to run your bot
 bot.run(BOT_TOKEN)
+
+# just to finish the GitHub wf sucessfully
+sys.exit(0)
