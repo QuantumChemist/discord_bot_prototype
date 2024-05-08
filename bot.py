@@ -9,9 +9,6 @@ import functools
 import typing
 #import bot_aux
 
-# just to finish the GitHub wf sucessfully
-sys.exit(0)
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -22,6 +19,11 @@ intents.reactions = True
 
 # Define the bot's command prefix
 bot = commands.Bot(command_prefix=commands.when_mentioned_or(''), intents=intents)
+
+# Event: Bot is ready
+@bot.event
+async def on_ready():
+    print(f'{bot.user.name} has connected to Discord!')
 
 # Emoji names
 custom_emoji_names = ['custom_emoji']
@@ -77,15 +79,6 @@ async def get_message_content(ctx, message_link: str):
         await ctx.send(f"Content of the message: {message.content}")
     except Exception as e:
         await ctx.send(f"Failed to retrieve message content: {e}")    
-        
-# Event: Bot is ready
-@bot.event
-async def on_ready():
-    print(f'{bot.user.name} has connected to Discord!')
-
-@bot.listen()
-async def on_message(message):
-    print("Done!")
             
 # Command to start the background task
 @bot.command(name='start')
@@ -132,4 +125,15 @@ async def hello(ctx):
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Use the bot token to run your bot
-bot.run(BOT_TOKEN)
+#bot.run(BOT_TOKEN)
+
+@bot.listen()
+async def on_message(message):
+    print("Done!")
+
+# Your bot's main function for running it a specific time
+async def main():
+    await client.start(BOT_TOKEN)
+    # Run the bot for 10 seconds
+    await asyncio.sleep(10)
+    await client.close()
