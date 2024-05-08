@@ -21,6 +21,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: pip install discord.py
+      run: pip install python-dotenv
       
     - name: Run Python script with secret
       env:
