@@ -23,6 +23,7 @@ jobs:
       run: |
        pip install discord.py
        pip install python-dotenv
+       pip install aiocurl
       
     - name: Run Python script with secret
       env:
