@@ -2,7 +2,7 @@ name: Run bot in background
 
 on:
   push:
-    branches: [ main ]
+    branches: [ sora ]
 
 jobs:
   build:
