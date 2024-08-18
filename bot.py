@@ -67,15 +67,14 @@ async def get_message_content(ctx, message_link: str):
     except Exception as e:
         await ctx.send(f"Failed to retrieve message content: {e}")
 
-    # Command to start the background task (Refactored)
-
 
 @bot.command(name='start')
 async def start_send_message(ctx):
     await ctx.send("Chat mode started!")
     channel_id = None  # Initialize channel_id variable
-    try:
-        while True:
+
+    while True:
+        try:
             if channel_id is None:
                 channel_id = await bot.loop.run_in_executor(None, input,
                                                             "Enter the channel ID where you want to send the message: ")
@@ -91,14 +90,25 @@ async def start_send_message(ctx):
                 channel_id = None
                 continue  # Skip sending the message and reset the channel ID
 
+            # Check if the message is empty
+            if not message.strip():
+                print("Cannot send an empty message. Please enter a valid message.")
+                continue
+
             channel = bot.get_channel(int(channel_id))
             if channel:
-                await channel.send(message)
+                try:
+                    await channel.send(message)
+                except discord.HTTPException as e:
+                    print(f"Failed to send message: {e}")
             else:
                 print("Invalid channel ID. Please enter a valid channel ID.")
 
-    except ValueError:
-        print("Invalid input. Please enter a valid channel ID.")
+        except ValueError:
+            print("Invalid input. Please enter a valid channel ID.")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            # The loop will automatically continue after handling the exception
 
 
 # Command: Logout
