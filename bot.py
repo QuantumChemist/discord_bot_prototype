@@ -123,13 +123,6 @@ async def start_send_message(ctx):
             print(f"An unexpected error occurred: {e}")
             # The loop will automatically continue after handling the exception
 
-# Command: Logout
-@bot.command(name='logout')
-@commands.is_owner()
-async def logout_bot(ctx):
-    await ctx.send("Goodbye, minna-san~!")
-    await bot.close()
-
 # Command: Hello
 @bot.command(name='hello')
 async def hello(ctx):
@@ -193,14 +186,23 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-# Error handling: CommandNotFound
+# Command: Logout
+@bot.command(name='logout')
+@commands.is_owner()
+async def logout_bot(ctx):
+    await ctx.send("Goodbye, minna-san~!")
+    await bot.close()
+
+# Error handling: CheckFailure for commands.is_owner()
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
+    if isinstance(error, commands.CheckFailure):
+        if ctx.command.name == "logout":
+            await ctx.send("Error: You do not have permission to use this command. Only the bot owner can use the `logout` command.")
+    elif isinstance(error, commands.CommandNotFound):
         await ctx.send(f"Error: The command you entered is not recognized. "
                        f"Please use `@{bot.user.name}` to see a list of available commands.")
     else:
-        # Handle other errors here if necessary
         await ctx.send(f"An error occurred: {error}")
 
 # Get the bot token from the environment variable
