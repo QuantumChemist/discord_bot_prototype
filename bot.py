@@ -132,6 +132,8 @@ async def hello(ctx):
         await ctx.send("Hallihallo, Chris!")
     elif ctx.author.name == os.environ.get('user1'):
         await ctx.send(os.environ.get('message1'))
+    elif ctx.author.name == os.environ.get('user2'):
+        await ctx.send(os.environ.get('message2'))
     else:
         await ctx.send(f'Hello {ctx.author.mention}!')
 
