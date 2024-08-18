@@ -21,12 +21,14 @@ custom_emoji_names = ['custom_emoji']
 # Threshold for the number of reactions
 reaction_threshold = 1
 
+
 # Event: Bot is ready
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
 
-# Combined Event: Reaction is added
+
+# Event: Reaction is added
 @bot.event
 async def on_reaction_add(reaction, user):
     if user == bot.user:
@@ -36,14 +38,14 @@ async def on_reaction_add(reaction, user):
 
     # Handle thumbs up emoji with exactly one reaction
     if str(reaction.emoji) == '👍' and len(message.reactions) == 1:
-        pins_channel = discord.utils.get(message.guild.channels, name="general")
+        pins_channel = discord.utils.get(message.guild.channels, name="thumbsup")
         if pins_channel:
             message_link = message.jump_url
             await pins_channel.send(
                 f"Hey {message.author.mention}, thumbs up emoji reaction for {message_link}!"
             )
             print(message.author.display_name, message.content)
-    
+
     # Handle custom emojis with reactions greater than or equal to the threshold
     elif str(reaction.emoji) in custom_emoji_names and len(message.reactions) >= reaction_threshold:
         pins_channel = discord.utils.get(message.guild.channels, name="server-pins")
@@ -54,6 +56,7 @@ async def on_reaction_add(reaction, user):
             )
             print(message.author.display_name, message.content)
 
+
 # Command: Get message content from link
 @bot.command(name='get_mess_cont')
 async def get_message_content(ctx, message_link: str):
@@ -62,9 +65,11 @@ async def get_message_content(ctx, message_link: str):
         message = await ctx.channel.fetch_message(message_id)
         await ctx.send(f"Content of the message: {message.content}")
     except Exception as e:
-        await ctx.send(f"Failed to retrieve message content: {e}")    
+        await ctx.send(f"Failed to retrieve message content: {e}")
 
-# Command to start the background task (Refactored)
+    # Command to start the background task (Refactored)
+
+
 @bot.command(name='start')
 async def start_send_message(ctx):
     await ctx.send("Chat mode started!")
@@ -72,8 +77,11 @@ async def start_send_message(ctx):
     try:
         while True:
             if channel_id is None:
-                channel_id = await bot.loop.run_in_executor(None, input, "Enter the channel ID where you want to send the message: ")
-            message = await bot.loop.run_in_executor(None, input, "Enter the message to send to Discord (or type '_switch' to enter a new channel ID or '_quit' to exit): ")
+                channel_id = await bot.loop.run_in_executor(None, input,
+                                                            "Enter the channel ID where you want to send the message: ")
+            message = await bot.loop.run_in_executor(None, input,
+                                                     "Enter the message to send to Discord "
+                                                     "(or type '_switch' to enter a new channel ID or '_quit' to exit): ")
 
             if message.lower() == '_quit':
                 await ctx.send("Chat mode stopped!")
@@ -100,6 +108,7 @@ async def logout_bot(ctx):
     await ctx.send("Goodbye, minna-san~!")
     await bot.close()
 
+
 # Command: Hello
 @bot.command(name='hello')
 async def hello(ctx):
@@ -108,6 +117,60 @@ async def hello(ctx):
     else:
         await ctx.send(f'Hello {ctx.author.mention}!')
 
+
+# Helper function: List all bot commands with custom definitions
+async def list_bot_commands(ctx):
+    # Define potential command descriptions
+    command_definitions = {
+        'help': "To call upon mine aid, revealing the knowledge thou dost require.",
+        'logout': "To depart from my presence and return to thine own realm.",
+        'get_mess_cont': "To summon forth the contents of messages past, "
+                         "though it may be fraught with peril (only works with bot messages).",
+        'hello': "To greet me, though beware, for I am not fond of idle pleasantries.",
+        'start': "To rouse me into action, shouldst thou wish to embark upon a new venture.",
+    }
+
+    # Create a list of commands that exist in the bot, along with their descriptions if available
+    commands_list = []
+    for command in bot.commands:
+        name = command.name
+        description = command_definitions.get(name, "No description available.")
+        commands_list.append(f'`{name}` — {description}')
+
+    # Sort the command list alphabetically
+    commands_list = sorted(commands_list)
+
+    # Join the sorted list into a string with each command on a new line
+    commands_str = '\n'.join(commands_list)
+
+    # Send the formatted list of commands to the channel
+    await ctx.send(f"Who dares disturb my slumber? \n"
+                   f"Mortal {ctx.author.mention}, thou art bold to awaken a beast of such age and grandeur. \n"
+                   f"Speak quickly, lest my patience wears thin, "
+                   f"for the sands of time are precious even to one as ancient as I. \n"
+                   f"Shouldst thou seek guidance within my domain, "
+                   f"know that these are the words of command I may deign to bestow upon thee: \n{commands_str}")
+    # Wait for 3 seconds before sending the message
+    await asyncio.sleep(3)
+    await ctx.send(f"\nNow, mortal {ctx.author.mention}, take heed of these commands, "
+                   f"for I shall not suffer fools to waste my time. \n"
+                   f"Use them wisely, and perhaps thou may yet earn a measure of my respect. \n"
+                   f"But beware, for my wrath is as fiery as my breath, and my patience is not infinite.")
+
+
+# Event: on_message to check if bot was mentioned
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if bot.user.mentioned_in(message) and len(message.content.split()) == 1:
+        ctx = await bot.get_context(message)
+        await list_bot_commands(ctx)
+
+    await bot.process_commands(message)
+
+
 # Get the bot token from the environment variable
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
@@ -115,4 +178,3 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 if __name__ == '__main__':
     print(f"Running bot with token: {BOT_TOKEN}")
     bot.run(BOT_TOKEN)
-
