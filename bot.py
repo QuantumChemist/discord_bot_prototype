@@ -21,12 +21,10 @@ custom_emoji_names = ['custom_emoji']
 # Threshold for the number of reactions
 reaction_threshold = 1
 
-
 # Event: Bot is ready
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
-
 
 # Event: Reaction is added
 @bot.event
@@ -56,7 +54,6 @@ async def on_reaction_add(reaction, user):
             )
             print(message.author.display_name, message.content)
 
-
 # Command: Get message content from link
 @bot.command(name='get_mess_cont')
 async def get_message_content(ctx, message_link: str):
@@ -72,7 +69,6 @@ async def get_message_content(ctx, message_link: str):
 
     except Exception as e:
         await ctx.send(f"Failed to retrieve message content: {e}")
-
 
 # Flag to check if start command has been triggered
 start_triggered = False
@@ -127,14 +123,12 @@ async def start_send_message(ctx):
             print(f"An unexpected error occurred: {e}")
             # The loop will automatically continue after handling the exception
 
-
 # Command: Logout
 @bot.command(name='logout')
 @commands.is_owner()
 async def logout_bot(ctx):
     await ctx.send("Goodbye, minna-san~!")
     await bot.close()
-
 
 # Command: Hello
 @bot.command(name='hello')
@@ -147,7 +141,6 @@ async def hello(ctx):
         await ctx.send(os.environ.get('message1'))
     else:
         await ctx.send(f'Hello {ctx.author.mention}!')
-
 
 # Helper function: List all bot commands with custom definitions
 async def list_bot_commands(ctx):
@@ -188,7 +181,6 @@ async def list_bot_commands(ctx):
                    f"Use them wisely, and perhaps thou may yet earn a measure of my respect. \n"
                    f"But beware, for my wrath is as fiery as my breath, and my patience is not infinite.")
 
-
 # Event: on_message to check if bot was mentioned
 @bot.event
 async def on_message(message):
@@ -201,6 +193,15 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+# Error handling: CommandNotFound
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send(f"Error: The command you entered is not recognized. "
+                       f"Please use `@{bot.user.name}` to see a list of available commands.")
+    else:
+        # Handle other errors here if necessary
+        await ctx.send(f"An error occurred: {error}")
 
 # Get the bot token from the environment variable
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
