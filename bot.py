@@ -63,7 +63,13 @@ async def get_message_content(ctx, message_link: str):
     try:
         message_id = int(message_link.split('/')[-1])
         message = await ctx.channel.fetch_message(message_id)
-        await ctx.send(f"Content of the message: {message.content}")
+
+        # Check if the message author is the bot
+        if message.author == bot.user:
+            await ctx.send(f"Content of the message: {message.content}")
+        else:
+            await ctx.send("Error: The message is not from the bot.")
+
     except Exception as e:
         await ctx.send(f"Failed to retrieve message content: {e}")
 
