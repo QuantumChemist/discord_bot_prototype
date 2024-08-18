@@ -73,22 +73,25 @@ async def start_send_message(ctx):
         while True:
             if channel_id is None:
                 channel_id = await bot.loop.run_in_executor(None, input, "Enter the channel ID where you want to send the message: ")
-            message = await bot.loop.run_in_executor(None, input, "Enter the message to send to Discord (or type 'quit' to exit): ")
+            message = await bot.loop.run_in_executor(None, input, "Enter the message to send to Discord (or type '_switch' to enter a new channel ID or '_quit' to exit): ")
 
-            if channel_id == '0' or message.lower() == 'quit':
+            if message.lower() == '_quit':
                 await ctx.send("Chat mode stopped!")
                 break
-            if channel_id == '1':
+
+            if message.lower() == '_switch':
                 channel_id = None
+                continue  # Skip sending the message and reset the channel ID
 
             channel = bot.get_channel(int(channel_id))
-
             if channel:
                 await channel.send(message)
             else:
                 print("Invalid channel ID. Please enter a valid channel ID.")
+
     except ValueError:
-        print("Invalid input. Please enter valid channel ID.")
+        print("Invalid input. Please enter a valid channel ID.")
+
 
 # Command: Logout
 @bot.command(name='logout')
