@@ -34,8 +34,14 @@ async def on_reaction_add(reaction, user):
 
     message = await reaction.message.channel.fetch_message(reaction.message.id)
 
-    # Handle thumbs up emoji with exactly one reaction
-    if str(reaction.emoji) == '👍' and len(message.reactions) == 1:
+    # Check if the thumbs-up emoji is added, regardless of the order of reactions
+    thumbs_up_reaction = None
+    for react in message.reactions:
+        if str(react.emoji) == '👍':
+            thumbs_up_reaction = react
+            break
+
+    if thumbs_up_reaction and thumbs_up_reaction.count >= reaction_threshold:
         pins_channel = discord.utils.get(message.guild.channels, name="thumbsup")
         if pins_channel:
             message_link = message.jump_url
@@ -45,8 +51,8 @@ async def on_reaction_add(reaction, user):
             print(message.author.display_name, message.content)
 
     # Handle custom emojis with reactions greater than or equal to the threshold
-    elif str(reaction.emoji) in custom_emoji_names and len(message.reactions) >= reaction_threshold:
-        pins_channel = discord.utils.get(message.guild.channels, name="server-pins")
+    if str(reaction.emoji) in custom_emoji_names and reaction.count >= reaction_threshold:
+        pins_channel = discord.utils.get(message.guild.channels, name="thumbsup")
         if pins_channel:
             message_link = message.jump_url
             await pins_channel.send(
