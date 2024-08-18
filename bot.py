@@ -50,7 +50,7 @@ async def on_reaction_add(reaction, user):
         if pins_channel:
             message_link = message.jump_url
             await pins_channel.send(
-                f"Hey {message.author.mention}, thumbs up emoji reaction for {message_link}!"
+                f"Hey {message.author.mention}, emoji reaction for {message_link}!"
             )
             print(message.author.display_name, message.content)
 
