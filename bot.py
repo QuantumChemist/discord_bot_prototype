@@ -68,14 +68,18 @@ async def get_message_content(ctx, message_link: str):
 @bot.command(name='start')
 async def start_send_message(ctx):
     await ctx.send("Chat mode started!")
+    channel_id = None  # Initialize channel_id variable
     try:
         while True:
-            channel_id = await bot.loop.run_in_executor(None, input, "Enter the channel ID where you want to send the message: ")
+            if channel_id is None:
+                channel_id = await bot.loop.run_in_executor(None, input, "Enter the channel ID where you want to send the message: ")
             message = await bot.loop.run_in_executor(None, input, "Enter the message to send to Discord (or type 'quit' to exit): ")
 
             if channel_id == '0' or message.lower() == 'quit':
                 await ctx.send("Chat mode stopped!")
                 break
+            if channel_id == '1':
+                channel_id = None
 
             channel = bot.get_channel(int(channel_id))
 
