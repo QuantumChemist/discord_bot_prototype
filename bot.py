@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from discord_slash import SlashCommand, SlashContext
 
 # Load environment variables from .env file
 load_dotenv()
@@ -11,8 +12,9 @@ intents = discord.Intents.default()
 intents.messages = True
 intents.reactions = True
 
-# Define the bot's command prefix
+# Define the bot's command prefix and initialize SlashCommand
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
+slash = SlashCommand(bot, sync_commands=True)
 
 # Event: Bot is ready
 @bot.event
@@ -20,16 +22,16 @@ async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
 
 # Slash Command: Hello
-@bot.slash_command(name='hello', description='Sends a greeting message.')
-async def hello(ctx):
+@slash.slash(name='hello', description='Sends a greeting message.')
+async def hello(ctx: SlashContext):
     if ctx.author.name == "user_name":
         await ctx.send("User specific message.")
     else:
         await ctx.send(f'Hello {ctx.author.mention}!')
 
 # Slash Command: Get Message Content
-@bot.slash_command(name='get_mess_cont', description='Gets the content of a message by link.')
-async def get_message_content(ctx, message_link: str):
+@slash.slash(name='get_mess_cont', description='Gets the content of a message by link.')
+async def get_message_content(ctx: SlashContext, message_link: str):
     try:
         message_id = int(message_link.split('/')[-1])
         message = await ctx.channel.fetch_message(message_id)
@@ -38,8 +40,8 @@ async def get_message_content(ctx, message_link: str):
         await ctx.send(f"Failed to retrieve message content: {e}")
 
 # Slash Command: Start Send Message
-@bot.slash_command(name='start', description='Starts the chat mode.')
-async def start_send_message(ctx):
+@slash.slash(name='start', description='Starts the chat mode.')
+async def start_send_message(ctx: SlashContext):
     await ctx.send("Chat mode started!")
     try:
         while True:
@@ -57,12 +59,12 @@ async def start_send_message(ctx):
             else:
                 print("Invalid channel ID. Please enter a valid channel ID.")
     except ValueError:
-        print("Invalid input. Please enter valid channel ID.")
+        print("Invalid input. Please enter a valid channel ID.")
 
 # Slash Command: Logout
-@bot.slash_command(name='logout', description='Logs out the bot.')
+@slash.slash(name='logout', description='Logs out the bot.')
 @commands.is_owner()
-async def logout_bot(ctx):
+async def logout_bot(ctx: SlashContext):
     await ctx.send("Goodbye, minna-san~!")
     await bot.close()
 
