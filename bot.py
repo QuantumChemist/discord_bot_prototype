@@ -68,8 +68,18 @@ async def get_message_content(ctx, message_link: str):
         await ctx.send(f"Failed to retrieve message content: {e}")
 
 
+# Flag to check if start command has been triggered
+start_triggered = False
+
 @bot.command(name='start')
 async def start_send_message(ctx):
+    global start_triggered
+
+    if start_triggered:
+        await ctx.send("The start command has already been triggered and cannot be run again.")
+        return
+
+    start_triggered = True  # Set the flag to indicate the command has been triggered
     await ctx.send("Chat mode started!")
     channel_id = None  # Initialize channel_id variable
 
@@ -84,6 +94,7 @@ async def start_send_message(ctx):
 
             if message.lower() == '_quit':
                 await ctx.send("Chat mode stopped!")
+                start_triggered = False  # Reset the flag so the command can be triggered again if needed
                 break
 
             if message.lower() == '_switch':
@@ -124,6 +135,10 @@ async def logout_bot(ctx):
 async def hello(ctx):
     if ctx.author.name == "user_name":
         await ctx.send("User specific message.")
+    elif ctx.author.name == "chichimeetsyoko":
+        await ctx.send("Hallihallo, Chris!")
+    elif ctx.author.name == os.environ.get('user1'):
+        await ctx.send(os.environ.get('message1'))
     else:
         await ctx.send(f'Hello {ctx.author.mention}!')
 
@@ -154,7 +169,7 @@ async def list_bot_commands(ctx):
     commands_str = '\n'.join(commands_list)
 
     # Send the formatted list of commands to the channel
-    await ctx.send(f"Who dares disturb my slumber? \n"
+    await ctx.send(f"Who dares to disturb my slumber? \n"
                    f"Mortal {ctx.author.mention}, thou art bold to awaken a beast of such age and grandeur. \n"
                    f"Speak quickly, lest my patience wears thin, "
                    f"for the sands of time are precious even to one as ancient as I. \n"
