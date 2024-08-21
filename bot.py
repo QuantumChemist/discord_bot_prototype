@@ -325,5 +325,5 @@ BOT_TOKEN = os.environ.get('BOT_TOKEN')
 
 # Run the bot
 if __name__ == '__main__':
-    print(f"Running bot with token: {BOT_TOKEN}")
+    print(f"Running bot")
     bot.run(BOT_TOKEN)
