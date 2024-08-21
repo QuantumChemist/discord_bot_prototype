@@ -3,6 +3,9 @@ import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 import asyncio
+import random
+from collections import defaultdict
+from corpus import corpus
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,14 +22,72 @@ custom_emoji_names = ['custom_emoji']
 # Threshold for the number of reactions
 reaction_threshold = 1
 
+
+# Generate text from the Markov chain
+def generate_markov_text(chain, start_word, min_length=10):
+    word = start_word
+    generated_words = [word]
+
+    for _ in range(min_length - 1):  # Ensure we attempt to generate at least min_length words
+        next_words = chain.get(word)
+        if not next_words:  # If no next words are found, choose another random word from the chain
+            word = random.choice(list(chain.keys()))
+            generated_words.append(word)
+        else:
+            word = random.choice(next_words)
+            generated_words.append(word)
+
+        if word in ['.', '!', '?']:
+            break
+
+    # Ensure the sentence ends with a punctuation mark
+    if generated_words[-1] not in ['.', '!', '?']:
+        generated_words.append('... *beep*')
+
+    return ' '.join(generated_words)
+
+def generate_convo_text()->str:
+    markov_chain = defaultdict(list)
+    words = corpus.split(' ')
+    for i in range(len(words) - 1):
+        markov_chain[words[i]].append(words[i + 1])
+
+    # Randomly select a greeting
+    greetings = ["Hi", "Hey", "Oi!!!", "Hello", "Hallo", "Good morning", "Good afternoon", "Good evening", "Good day",
+                 "Good night"]
+    selected_greeting = random.choice(greetings)
+
+    # Ensure we choose a valid start word that has a following word in the chain
+    valid_start_word = random.choice([word for word in words if word in markov_chain])
+
+    # Generate a random number between 5 and 20
+    random_number = random.randint(5, 20)
+
+    # Generate a sequence of words using the Markov chain
+    markov_text = generate_markov_text(markov_chain, valid_start_word, random_number)
+
+    # Concatenate the greeting with the generated text
+    return f"{selected_greeting}, {markov_text}"
+
 # Event: Bot is ready
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
     user = await bot.fetch_user(int(os.environ.get('chichi')))
     if user:
-        response = "Hello"
+        response = generate_convo_text()
         await user.send(f"Hello! This is a DM from your bot. \n{response}")
+
+# Command: Generate a message with the Markov chain and send in channel and DM
+@bot.command(name='generate_message')
+async def generate_message(ctx):
+    if not corpus:
+        await ctx.send("Corpus is not available.")
+        return
+    await ctx.reply(f"Generated message: {generate_convo_text()}")
+    user = await bot.fetch_user(ctx.message.author.id)
+    if user:
+        await user.send(f"Here is a generated message just for you: {generate_convo_text()}")
 
 # Command: Send a DM to the bot owner
 @bot.command(name='dm_owner')
@@ -206,9 +267,9 @@ async def on_message(message):
         return
 
     if isinstance(message.channel, discord.DMChannel):
-        await message.channel.send("Hello")
+        await message.channel.send(generate_convo_text())
     elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
-        await message.channel.send("Hello")
+        await message.channel.send(generate_convo_text())
     elif bot.user.mentioned_in(message):
         # Split the message content into words
         words = message.content.split()
@@ -224,7 +285,7 @@ async def on_message(message):
 
         # If it's not a recognized command, send "Hello"
         if ctx.command is None:
-            await message.channel.send("Hello")
+            await message.channel.send(generate_convo_text())
 
     await bot.process_commands(message)
 
