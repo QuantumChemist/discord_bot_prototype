@@ -269,7 +269,7 @@ async def on_message(message):
     if isinstance(message.channel, discord.DMChannel):
         await message.channel.send(generate_convo_text())
     elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
-        await message.channel.send(generate_convo_text())
+        await message.reply(generate_convo_text())
     elif bot.user.mentioned_in(message):
         # Split the message content into words
         words = message.content.split()
