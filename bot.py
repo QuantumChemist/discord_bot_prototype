@@ -79,6 +79,16 @@ async def on_ready():
         response = generate_convo_text()
         await user.send(f"Hello! This is a DM from your bot. \n{response}")
 
+
+@bot.event
+async def on_member_join(member):
+    channel = discord.utils.get(member.guild.text_channels, name='general')
+    if channel:
+        await channel.send(f"Welcome, {member.mention}, to {member.guild.name}! "
+                           f"Please follow the rules and be respectful and behave. "
+                           f"{os.environ.get('message1')}")
+
+
 # Command: Generate a message with the Markov chain and send in channel and DM
 @bot.command(name='generate_message')
 async def generate_message(ctx):
