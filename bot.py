@@ -8,9 +8,7 @@ import asyncio
 load_dotenv()
 
 # Intents definition
-intents = discord.Intents.default()
-intents.messages = True
-intents.reactions = True
+intents = discord.Intents.all()
 
 # Define the bot's command prefix
 bot = commands.Bot(command_prefix=commands.when_mentioned_or('!'), intents=intents)
