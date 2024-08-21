@@ -23,6 +23,22 @@ reaction_threshold = 1
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
+    user = await bot.fetch_user(int(os.environ.get('chichi')))
+    if user:
+        response = "Hello"
+        await user.send(f"Hello! This is a DM from your bot. \n{response}")
+
+# Command: Send a DM to the bot owner
+@bot.command(name='dm_owner')
+@commands.is_owner()
+async def dm_owner(ctx, *, message: str = None):
+    user = await bot.fetch_user(ctx.message.author.id)
+    if user:
+        if message:
+            await user.send(message)
+        else:
+            await user.send("This is a direct message to you from the bot.")
+    await ctx.send("DM sent to the bot owner.")
 
 # Event: Reaction is added
 @bot.event
@@ -146,11 +162,13 @@ async def list_bot_commands(ctx):
     # Define potential command descriptions
     command_definitions = {
         'help': "To call upon mine aid, revealing the knowledge thou dost require.",
-        'logout': "To depart from my presence and return to thine own realm.",
-        'get_mess_cont': "To summon forth the contents of messages past, "
-                         "though it may be fraught with peril (only works with bot messages).",
+        #'logout': "To depart from my presence and return to thine own realm.",
+        'get_mess_cont': "To summon forth the contents of messages past, though it may be fraught with peril (only works with bot messages).",
         'hello': "To greet me, though beware, for I am not fond of idle pleasantries.",
         'start': "To rouse me into action, shouldst thou wish to embark upon a new venture.",
+        'generate_message': "To weave a tale from the fabric of words, both in public and in private.",
+        'dm_owner': "To deliver thy message directly unto mine own ear, shouldst thou be worthy.",
+        'logout': "To bid farewell to this realm and return to the shadows whence I came.",
     }
 
     # Create a list of commands that exist in the bot, along with their descriptions if available
@@ -180,17 +198,50 @@ async def list_bot_commands(ctx):
                    f"Use them wisely, and perhaps thou may yet earn a measure of my respect. \n"
                    f"But beware, for my wrath is as fiery as my breath, and my patience is not infinite.")
 
-# Event: on_message to check if bot was mentioned
+
+# Event: on_message to check if bot was mentioned, replied, or DM'd
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
 
-    if bot.user.mentioned_in(message) and len(message.content.split()) == 1:
+    if isinstance(message.channel, discord.DMChannel):
+        await message.channel.send("Hello")
+    elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
+        await message.channel.send("Hello")
+    elif bot.user.mentioned_in(message):
+        # Split the message content into words
+        words = message.content.split()
+
+        # If the message contains only the bot mention
+        if len(words) == 1:
+            ctx = await bot.get_context(message)
+            await list_bot_commands(ctx)
+            return
+
+        # If the message contains more than just the bot mention
         ctx = await bot.get_context(message)
-        await list_bot_commands(ctx)
+
+        # If it's not a recognized command, send "Hello"
+        if ctx.command is None:
+            await message.channel.send("Hello")
 
     await bot.process_commands(message)
+
+
+# Error handling: CheckFailure for commands.is_owner()
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        if ctx.command.name == "logout":
+            await ctx.send(
+                "Error: You do not have permission to use this command. Only the bot owner can use the `logout` command.")
+    elif isinstance(error, commands.CommandNotFound):
+        # Send only the command error message, without "Hello"
+        await ctx.send(f"In case you wanted to use a bot command, use `@{bot.user.name}` to see a list of available commands.")
+    else:
+        await ctx.send(f"An error occurred: {error}")
+
 
 # Command: Logout
 @bot.command(name='logout')
@@ -198,18 +249,6 @@ async def on_message(message):
 async def logout_bot(ctx):
     await ctx.send("Goodbye, minna-san~!")
     await bot.close()
-
-# Error handling: CheckFailure for commands.is_owner()
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        if ctx.command.name == "logout":
-            await ctx.send("Error: You do not have permission to use this command. Only the bot owner can use the `logout` command.")
-    elif isinstance(error, commands.CommandNotFound):
-        await ctx.send(f"Error: The command you entered is not recognized. "
-                       f"Please use `@{bot.user.name}` to see a list of available commands.")
-    else:
-        await ctx.send(f"An error occurred: {error}")
 
 # Get the bot token from the environment variable
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
