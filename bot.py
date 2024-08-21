@@ -46,7 +46,7 @@ def generate_markov_text(chain, start_word, min_length=10):
 
     return ' '.join(generated_words)
 
-def generate_convo_text()->str:
+def generate_convo_text(valid_start_word: str | None = None)->str:
     markov_chain = defaultdict(list)
     words = corpus.split(' ')
     for i in range(len(words) - 1):
@@ -57,8 +57,9 @@ def generate_convo_text()->str:
                  "Good night"]
     selected_greeting = random.choice(greetings)
 
-    # Ensure we choose a valid start word that has a following word in the chain
-    valid_start_word = random.choice([word for word in words if word in markov_chain])
+    if valid_start_word is None:
+        # Ensure we choose a valid start word that has a following word in the chain
+        valid_start_word = random.choice([word for word in words if word in markov_chain])
 
     # Generate a random number between 5 and 20
     random_number = random.randint(5, 20)
@@ -267,12 +268,20 @@ async def on_message(message):
         return
 
     if isinstance(message.channel, discord.DMChannel):
-        await message.channel.send(generate_convo_text())
+        words = message.content.split()
+        random_word = random.choice(words)
+        start_word = (random_word if random_word in corpus else None)
+        await message.channel.send(generate_convo_text(start_word))
     elif message.reference and message.reference.resolved and message.reference.resolved.author == bot.user:
-        await message.reply(generate_convo_text())
+        words = message.content.split()
+        random_word = random.choice(words)
+        start_word = (random_word if random_word in corpus else None)
+        await message.reply(generate_convo_text(start_word))
     elif bot.user.mentioned_in(message):
         # Split the message content into words
         words = message.content.split()
+        random_word = random.choice(words)
+        start_word = (random_word if random_word in corpus else None)
 
         # If the message contains only the bot mention
         if len(words) == 1:
@@ -285,7 +294,7 @@ async def on_message(message):
 
         # If it's not a recognized command, send "Hello"
         if ctx.command is None:
-            await message.channel.send(generate_convo_text())
+            await message.channel.send(generate_convo_text(start_word))
 
     await bot.process_commands(message)
 
