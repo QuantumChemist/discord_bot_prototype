@@ -82,11 +82,11 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
-    channel = discord.utils.get(member.guild.text_channels, name='general')
+    channel = discord.utils.get(member.guild.text_channels, name='welcome')
     if channel:
         await channel.send(f"Welcome, {member.mention}, to {member.guild.name}! "
                            f"Please follow the rules and be respectful and behave. "
-                           f"{os.environ.get('message1')}")
+                           f"{os.environ.get('messagejoin')}")
 
 
 # Command: Generate a message with the Markov chain and send in channel and DM
